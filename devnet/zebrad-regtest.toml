@@ -1,0 +1,19 @@
+# Local regtest chain where Zebra mines its own blocks (no real hashing on regtest).
+# Build:  cargo install zebrad --locked --features internal-miner
+# Run:    zebrad -c devnet/zebrad-regtest.toml start
+# Coinbase pays the treasury's *transparent* mining address, the same shape
+# as a real pool payout. minesplit then sweeps it into the shielded treasury.
+
+[network]
+network = "Regtest"
+
+[state]
+ephemeral = true
+
+[rpc]
+listen_addr = "127.0.0.1:18232"
+
+[mining]
+internal_miner = true
+# Replace with the treasury's regtest transparent address (`minesplit addr`).
+miner_address = "REPLACE_WITH_TREASURY_T_ADDRESS"

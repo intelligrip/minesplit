@@ -1,0 +1,9 @@
+[package]
+name = "minesplit-policy"
+description = "The published rule: how much of the mined ZEC goes to riders, and how each epoch's rider budget is paid out."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true

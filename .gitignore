@@ -1,0 +1,4 @@
+/target
+*.local
+*.sqlite
+/devnet/data

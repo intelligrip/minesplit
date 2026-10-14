@@ -1,0 +1,14 @@
+[package]
+name = "minesplit-statement"
+description = "Split statements: proof that a shielded treasury paid riders at least the published share of what it mined."
+edition.workspace = true
+license.workspace = true
+version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+minesplit-policy = { path = "../policy" }
