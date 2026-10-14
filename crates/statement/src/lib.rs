@@ -13,8 +13,8 @@
 //! * **Mined income** is public by construction: pool payouts land on the
 //!   treasury's published transparent mining address, and anyone can sum them.
 //! * **Rider payouts** are shielded. They are proven with a sender-side audit
-//!   statement (`ghost audit verify`): every payout is a real on-chain note,
-//!   recovered with the treasury's outgoing viewing key. No rider keys, routes
+//!   proof: every payout is a real on-chain note, recovered with the
+//!   treasury's outgoing viewing key (the `proofs` layer, next). No rider keys, routes
 //!   or identities are involved.
 //!
 //! What this does *not* prove: that every recipient is a distinct real person.
@@ -25,7 +25,6 @@
 use anyhow::{anyhow, bail, ensure, Result};
 use minesplit_policy::Policy;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use sha2::{Digest, Sha256};
 
 pub const STATEMENT_VERSION: &str = "minesplit/split-statement/1";
@@ -83,30 +82,6 @@ impl SplitStatement {
         // serde_json writes struct fields in declaration order, so this is canonical.
         hex::encode(Sha256::digest(serde_json::to_vec(self).expect("serializable")))
     }
-}
-
-/// Reads the payout items out of a `ghost audit verify --out` statement.
-/// Refuses unless every payout in it verified.
-pub fn paid_from_audit(audit: &Value) -> Result<Vec<PaidItem>> {
-    ensure!(
-        audit["v"] == "ghost-commute/audit-statement/1",
-        "not a ghost audit statement"
-    );
-    ensure!(audit["all_verified"] == true, "audit statement has unverified payouts");
-    audit["items"]
-        .as_array()
-        .ok_or_else(|| anyhow!("audit statement has no items (was it redacted?)"))?
-        .iter()
-        .map(|it| {
-            Ok(PaidItem {
-                txid: it["txid"].as_str().ok_or_else(|| anyhow!("item without txid"))?.into(),
-                height: it["mined_height"]
-                    .as_u64()
-                    .ok_or_else(|| anyhow!("item without mined height"))? as u32,
-                zat: it["value_zat"].as_u64().ok_or_else(|| anyhow!("item without value"))?,
-            })
-        })
-        .collect()
 }
 
 pub struct Inputs<'a> {
@@ -246,7 +221,6 @@ fn short(t: &str) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::json;
 
     fn policy() -> Policy {
         Policy {
@@ -353,19 +327,5 @@ mod tests {
             paid: vec![PaidItem { txid: "bb".repeat(32), height: 15, zat: 51 }],
         });
         assert!(r.is_err());
-    }
-
-    #[test]
-    fn reads_ghost_audit_statement() {
-        let audit = json!({
-            "v": "ghost-commute/audit-statement/1",
-            "all_verified": true,
-            "items": [{"txid": "ee".repeat(32), "mined_height": 3374485, "value_zat": 9840, "verified": true}]
-        });
-        let p = paid_from_audit(&audit).unwrap();
-        assert_eq!(p[0].zat, 9840);
-        let mut bad = audit.clone();
-        bad["all_verified"] = json!(false);
-        assert!(paid_from_audit(&bad).is_err());
     }
 }

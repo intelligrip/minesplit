@@ -31,8 +31,8 @@ to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
 | `statement`: build + verify + hash chain | done, tested |
 | Regtest devnet with Zebra's internal miner | config in `devnet/` |
 | Sweep: transparent mining payouts → shielded treasury | next |
-| Pay: shielded rider payouts with memo receipts | next (reuses Pedalshield's `pay_with_memo`) |
-| Chain checks: every mined/paid txid at its height and amount | next (reuses `ghost audit`) |
+| Pay: shielded rider payouts with memo receipts | next (zcash-devtool / librustzcash) |
+| Chain checks + sender-side payout proofs (OVK) | next, written fresh here |
 | Dashboard: latest verified statement | next |
 
 ## Honest limits
@@ -43,12 +43,12 @@ to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
 * Pool payouts to a transparent address are public by design; that is what
   makes income checkable. Everything after the sweep is shielded.
 
-## Prior work
+## Build-window rules
 
-Reuses code from [`intelligrip/Pedalshield`](https://github.com/intelligrip/Pedalshield)
-(the `ghost-commute/` audit tool and the treasury's payout pipeline), built
-before Sep 14, 2026 and in the Colosseum World's Fair. New here: the policy
-engine, split statements, the sweep and the devnet.
+All code in this repo is written during the ZECATHON build window. It depends
+only on public libraries and tools (librustzcash crates, Zebra,
+zcash-devtool); it does not import code from Pedalshield or any other existing
+product. Pedalshield is the first intended user, not a dependency.
 
 ## Test
 
