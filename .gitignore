@@ -2,3 +2,6 @@
 *.local
 *.sqlite
 /devnet/data
+wallets/
+*.identity.txt
+statements/private/

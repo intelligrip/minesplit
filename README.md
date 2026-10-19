@@ -2,23 +2,35 @@
 
 **Mined ZEC, split in the open, paid in private.**
 
-A miner-funded shielded treasury that proves it kept its promise. Miners pay a
-published transparent address. A published policy sends a fixed share of every
-mined zatoshi to riders. Riders are paid in shielded ZEC. Each epoch the
-treasury publishes a **split statement** that anyone can check against the chain:
+Shielded payouts with a promise anyone can check, and nothing that leaks.
+
+A treasury (funded by mining, grants, or donations) publishes a rule: a fixed
+share of everything it receives goes to the people it pays. Income arrives
+shielded, payouts go out shielded, and each epoch the treasury publishes a
+**public statement** of totals that proves the rule held:
 
 ```
-budget  = rider_share(mined last epoch) + carry_in
-budget == paid_to_riders + carry_out        nothing leaks out
-carry_in == previous statement's carry_out  nothing disappears between epochs
+budget  = share(income) + carry_in
+budget == paid + carry_out                  nothing leaks out
+carry_in == previous carry_out              nothing disappears between epochs
 ```
 
-* **Mined income** is public: pool payouts land on the published mining address.
-* **Rider payouts** stay shielded. They are proven with sender-side one-note
-  disclosures (the treasury's outgoing viewing key), so no rider keys, routes
-  or identities are ever involved.
-* Statements are hash-chained. Skim the carry, edit an amount, or skip an epoch
-  and verification fails.
+An auditor the treasury chooses checks every item behind those totals with the
+treasury's viewing keys and signs the digest. The public sees totals, the hash
+chain and the signature, and nothing per payout.
+
+## No leaks: the rules this repo enforces
+
+| Leak | How it is closed | Enforced by |
+|---|---|---|
+| Transparent addresses | None anywhere; payout addresses are reduced to Orchard-only | `minesplit orchard-only`, tests |
+| Per-payout txids, amounts or addresses in public | Public statement is totals only | `public_view_leaks_nothing_per_payout` test |
+| Small epochs exposing one person's pay | Totals are refused below 5 payouts; merge epochs | `small_epochs_are_not_published` test |
+| Payout timing | One batched payout per epoch at a fixed time | payout runner (next) |
+| Address reuse | Fresh address per payout | payout runner (next) |
+| Memos | Random receipt id only | memo builder (next) |
+| Keys or seeds in git | Pre-commit hook blocks wallet files, keys, seed-like lines | `scripts/check-secrets.sh` |
+| Network metadata (IP, which txids you fetch) | Not closed yet: use your own node or Tor | stated limit |
 
 Built by Intelligrip Inc. for [Pedalshield](https://pedalshield.app) (get paid
 to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
@@ -28,9 +40,9 @@ to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
 | Part | State |
 |---|---|
 | `policy`: split, per-km asks, caps, pro-rata scaling, carry | done, tested |
-| `statement`: build + verify + hash chain | done, tested |
-| Regtest devnet with Zebra's internal miner | config in `devnet/` |
-| Sweep: transparent mining payouts → shielded treasury | next |
+| `statement`: auditor view, totals-only public view, hash chain, leak tests | done, tested |
+| `minesplit` CLI: Orchard-only addresses, verify public chain | done, tested |
+| Treasury wallet on testnet (zcash-devtool) | next |
 | Pay: shielded rider payouts with memo receipts | next (zcash-devtool / librustzcash) |
 | Chain checks + sender-side payout proofs (OVK) | next, written fresh here |
 | Dashboard: latest verified statement | next |
