@@ -24,6 +24,7 @@ case "${1:-}" in
     [ -d "$T" ] || st init --name "minesplit-treasury" -i "$T.identity.txt" -n "$NET" "${CONN[@]}"
     [ -d "$R" ] || rd init --name "minesplit-riders" -i "$R.identity.txt" -n "$NET" "${CONN[@]}"
     st list-accounts | awk '/UFVK/{print $NF}' > "$T.ufvk.local"
+    rd list-accounts | awk '/UFVK/{print $NF}' > "$R.ufvk.local"
     echo "✓ wallets ready in wallets/ (gitignored, blocked by the secret hook)"
     ;;
   address)
@@ -40,7 +41,7 @@ case "${1:-}" in
       const rides=require("./demo/rides.json");
       const addrs=require("fs").readFileSync(0,"utf8").trim().split("\n");
       console.log(JSON.stringify(rides.map((r,i)=>({...r,address:addrs[i]})),null,2));
-    ' < <(for _ in $(seq 6); do rd gen-addr | grep -m1 -Eo 'u(test)?1[0-9a-z]+'; done) > wallets/claims.local.json
+    ' < <([ -s "$R.ufvk.local" ] || rd list-accounts | awk '/UFVK/{print $NF}' > "$R.ufvk.local"; "$MS" fresh-addresses --ufvk-file "$R.ufvk.local" --network "$NET" --count 6) > wallets/claims.local.json
     URI=$("$MS" pay --db "$T/data.sqlite" --policy demo/policy.json --claims wallets/claims.local.json --income "$INCOME" --carry-in "${CARRY:-0}")
     st pay -i "$T.identity.txt" --payment-uri "$URI" "${CONN[@]}"
     ;;

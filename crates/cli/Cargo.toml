@@ -19,3 +19,6 @@ rand = "0.8"
 base64 = "0.22"
 hex = { workspace = true }
 sha2_hash = { package = "sha2", version = "0.10" }
+zcash_keys = { version = "0.16.1", features = ["orchard"] }
+orchard = "0.15.0"
+zip32 = "0.2"

@@ -1,5 +1,6 @@
 //! `minesplit` CLI.
 
+mod fresh;
 mod pay;
 mod wallet;
 
@@ -22,6 +23,15 @@ struct Cli {
 enum Cmd {
     /// Reduce a unified address to its Orchard receiver only.
     OrchardOnly { ua: String },
+    /// Fresh Orchard-only addresses from a recipient's viewing key (one per payout).
+    FreshAddresses {
+        #[arg(long)]
+        ufvk_file: String,
+        #[arg(long)]
+        network: String,
+        #[arg(long, default_value_t = 1)]
+        count: usize,
+    },
     /// Build this epoch's single batched shielded payment (ZIP 321 URI).
     Pay {
         #[arg(long)]
@@ -96,6 +106,11 @@ fn write_json<T: serde::Serialize>(f: &str, v: &T) -> Result<()> {
 fn main() -> Result<()> {
     match Cli::parse().cmd {
         Cmd::OrchardOnly { ua } => println!("{}", orchard_only(&ua)?),
+        Cmd::FreshAddresses { ufvk_file, network, count } => {
+            for a in fresh::fresh_addresses(&std::fs::read_to_string(&ufvk_file)?, &network, count)? {
+                println!("{a}");
+            }
+        }
 
         Cmd::Pay { db, policy, claims, income, carry_in } => {
             let policy: Policy = read_json(&policy)?;
