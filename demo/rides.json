@@ -1,0 +1,8 @@
+[
+  {"id": "ride-01", "rider": "p1", "meters": 8400},
+  {"id": "ride-02", "rider": "p2", "meters": 12100},
+  {"id": "ride-03", "rider": "p3", "meters": 5300},
+  {"id": "ride-04", "rider": "p4", "meters": 21000},
+  {"id": "ride-05", "rider": "p5", "meters": 9900},
+  {"id": "ride-06", "rider": "p6", "meters": 15600}
+]

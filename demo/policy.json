@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "rider_share_bps": 5000,
+  "base_rate_zat_per_km": 10000,
+  "max_zat_per_ride": 200000,
+  "max_zat_per_rider_epoch": 400000
+}

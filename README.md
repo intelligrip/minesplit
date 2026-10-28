@@ -47,6 +47,27 @@ to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
 | Chain checks + sender-side payout proofs (OVK) | next, written fresh here |
 | Dashboard: latest verified statement | next |
 
+## Run it
+
+Needs Rust and [zcash-devtool](https://github.com/zcash/zcash-devtool). Every network call goes over Tor.
+
+```
+cargo test                          # policy, statements, leak tests
+NET=main ./scripts/demo.sh setup    # treasury + recipients wallets (gitignored)
+NET=main ./scripts/demo.sh address  # Orchard-only address: send income from a shielded wallet
+NET=main ./scripts/demo.sh sync     # after the income confirms
+NET=main ./scripts/demo.sh pay      # ONE batched shielded payout, fresh address per recipient
+NET=main ./scripts/demo.sh sync
+NET=main ./scripts/demo.sh audit    # private statement (auditor) + public statement (totals only)
+NET=main ./scripts/demo.sh check    # leak report, verify the public chain, tamper test
+```
+
+Anyone can verify the published chain without any keys:
+
+```
+./target/release/minesplit verify-public statements/epoch-*.json
+```
+
 ## Honest limits
 
 * A split statement proves the money moved as the policy says. It does not
