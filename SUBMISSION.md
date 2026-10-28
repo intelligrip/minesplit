@@ -2,7 +2,7 @@
 
 **Shielded payouts with a promise anyone can check, and nothing that leaks.**
 
-Repo: https://github.com/intelligrip/minesplit · Built by Intelligrip Inc. (Samuel B. Newman, Bend, OR)
+Repo: https://github.com/intelligrip/minesplit · Demo: https://intelligrip.github.io/minesplit/ · Video: https://youtu.be/6tLYxGZFaNQ · Built by Intelligrip Inc. (Samuel B. Newman, Bend, OR)
 
 ## One-liner
 

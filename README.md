@@ -2,6 +2,9 @@
 
 **Mined ZEC, split in the open, paid in private.**
 
+**▶ Demo video:** https://youtu.be/6tLYxGZFaNQ · **Try it in your browser:** https://intelligrip.github.io/minesplit/
+
+
 Shielded payouts with a promise anyone can check, and nothing that leaks.
 
 A treasury (funded by mining, grants, or donations) publishes a rule: a fixed
