@@ -1,0 +1,29 @@
+{
+  "v": "minesplit/public-statement/1",
+  "label": "minesplit demo (main)",
+  "network": "main",
+  "epoch": 0,
+  "policy": {
+    "version": 1,
+    "rider_share_bps": 5000,
+    "base_rate_zat_per_km": 10000,
+    "max_zat_per_ride": 200000,
+    "max_zat_per_rider_epoch": 400000
+  },
+  "treasury": "482f0e4b5ed2b62ae304964270cdc91f58c7e811f35cacbbee834c52444a1788",
+  "income_range": {
+    "from": 0,
+    "to": 99999999
+  },
+  "payout_range": {
+    "from": 0,
+    "to": 99999999
+  },
+  "mined_zat": 1000000,
+  "carry_in_zat": 0,
+  "budget_zat": 500000,
+  "paid_zat": 499996,
+  "carry_out_zat": 4,
+  "audited_digest": "27653ecc179826b0f339b757398d12c092684b317bcaf62c0cb87a8a187ad5c0",
+  "prev_audited_digest": ""
+}

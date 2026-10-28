@@ -26,14 +26,37 @@ chain and the signature, and nothing per payout.
 | Transparent addresses | None anywhere; payout addresses are reduced to Orchard-only | `minesplit orchard-only`, tests |
 | Per-payout txids, amounts or addresses in public | Public statement is totals only | `public_view_leaks_nothing_per_payout` test |
 | Small epochs exposing one person's pay | Totals are refused below 5 payouts; merge epochs | `small_epochs_are_not_published` test |
-| Payout timing | One batched payout per epoch at a fixed time | payout runner (next) |
-| Address reuse | Fresh address per payout | payout runner (next) |
-| Memos | Random receipt id only | memo builder (next) |
+| Payout timing | One batched payout per epoch | `minesplit pay`, leak report |
+| Address reuse | Fresh random-diversifier Orchard address per payout; reuse refused | `minesplit fresh-addresses`, `pay`, leak report |
+| Memos | Random receipt id only | `pay`, leak report |
 | Keys or seeds in git | Pre-commit hook blocks wallet files, keys, seed-like lines | `scripts/check-secrets.sh` |
-| Network metadata (IP, which txids you fetch) | Not closed yet: use your own node or Tor | stated limit |
+| Network metadata (your IP) | Every wallet call goes over Tor (`--connection tor`) | `scripts/demo.sh` |
+| Network metadata (which data you fetch) | Wallets scan compact blocks; the server still serves them. Next: own Zebra node | stated limit |
 
 Built by Intelligrip Inc. for [Pedalshield](https://pedalshield.app) (get paid
 to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
+
+## Live on Zcash mainnet
+
+Epoch 0 ran on mainnet on Oct 28, 2026, every network call over Tor:
+
+| | |
+|---|---|
+| Income | 0.01 ZEC, received shielded (Ironwood pool) |
+| Policy | 50% of income owed to recipients |
+| Claims | 6 rides asked for 0.00713 ZEC, more than the 0.005 budget, so all were scaled to 70.1% |
+| Payout | **one** shielded transaction to **6 fresh Orchard-only addresses**, 0.00499996 ZEC, memos carry only a random receipt id |
+| Carried forward | 4 zat (rounding), owed to recipients next epoch |
+| Leak report | 6/6 ✓: no transparent outputs, no address reuse, clean memos, batched, public file totals-only |
+
+The public statement is [`statements/epoch-0.json`](statements/epoch-0.json). Verify it with no keys:
+
+```
+cargo build --release -p minesplit
+./target/release/minesplit verify-public statements/epoch-0.json
+```
+
+Change one number in it and verification fails. Payout txids and addresses are deliberately not published; the auditor holds them.
 
 ## Status
 
@@ -42,10 +65,11 @@ to ride your bike, privately). ZECATHON 2026, Shielded Payments track.
 | `policy`: split, per-km asks, caps, pro-rata scaling, carry | done, tested |
 | `statement`: auditor view, totals-only public view, hash chain, leak tests | done, tested |
 | `minesplit` CLI: Orchard-only addresses, verify public chain | done, tested |
-| Treasury wallet on testnet (zcash-devtool) | next |
-| Pay: shielded rider payouts with memo receipts | next (zcash-devtool / librustzcash) |
-| Chain checks + sender-side payout proofs (OVK) | next, written fresh here |
-| Dashboard: latest verified statement | next |
+| Treasury + recipient wallets (zcash-devtool, over Tor) | done, mainnet |
+| `pay`: one batched shielded payout, fresh Orchard-only addresses from the recipient's viewing key, receipt-id memos | done, mainnet |
+| `audit`: private statement from the wallet's viewing data, totals-only public statement | done, mainnet |
+| `leak-report`: checks our own footprint | done, mainnet |
+| Auditor signature on the digest; own Zebra node | next |
 
 ## Run it
 
