@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>minesplit · verify it yourself</title>
+<meta name="description" content="Pay many people in shielded ZEC and prove they got their share, without revealing any of them. Verify the live mainnet statement in your browser.">
+<style>
+:root{
+  --bg:#f7f8f6; --panel:#ffffff; --ink:#14181c; --muted:#5b6670; --line:#dfe3e1;
+  --accent:#0f8f72; --accent-ink:#ffffff; --ok:#0f8f72; --bad:#c2410c; --chip:#eef3f1;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b0e10; --panel:#12171a; --ink:#e7ecea; --muted:#93a19c; --line:#232c2f;
+    --accent:#2ee6b6; --accent-ink:#05231c; --ok:#2ee6b6; --bad:#fb923c; --chip:#172024;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b0e10; --panel:#12171a; --ink:#e7ecea; --muted:#93a19c; --line:#232c2f;
+  --accent:#2ee6b6; --accent-ink:#05231c; --ok:#2ee6b6; --bad:#fb923c; --chip:#172024;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.wrap{max-width:920px;margin:0 auto;padding:32px 16px 64px}
+header .eyebrow{font:600 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.1;margin:10px 0 12px}
+.lead{color:var(--muted);font-size:18px;max-width:680px;margin:0}
+h2{font-size:20px;margin:40px 0 12px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.stat{background:var(--chip);border-radius:10px;padding:14px}
+.stat .k{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.stat .v{font:600 21px/1.2 var(--mono);margin-top:6px;overflow-wrap:anywhere}
+.stat .v small{font-size:12px;color:var(--muted);font-weight:600;margin-left:4px}
+.stat .s{font-size:12px;color:var(--muted);margin-top:2px}
+.verdict{display:flex;align-items:center;gap:12px;padding:16px 18px;border-radius:12px;font-weight:700;font-size:18px;margin-bottom:14px;border:2px solid}
+.verdict.ok{border-color:var(--ok);color:var(--ok)}
+.verdict.bad{border-color:var(--bad);color:var(--bad)}
+ul.checks{list-style:none;padding:0;margin:0}
+ul.checks li{display:flex;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+ul.checks li:first-child{border-top:0}
+.mark{font-weight:700;width:18px;flex:none}
+.mark.ok{color:var(--ok)} .mark.bad{color:var(--bad)}
+.why{color:var(--muted);font-size:14px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+button{font:600 14px/1 system-ui,sans-serif;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+pre{font:13px/1.5 var(--mono);background:var(--chip);border-radius:10px;padding:14px;overflow:auto;margin:0;white-space:pre-wrap;word-break:break-all}
+table{width:100%;border-collapse:collapse;font-size:15px}
+td,th{text-align:left;padding:9px 6px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-top:0}
+.two{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.tag{display:inline-block;font:600 11px/1 var(--mono);padding:4px 7px;border-radius:6px;background:var(--chip);color:var(--muted)}
+a{color:var(--accent)}
+.src{font-size:13px;color:var(--muted);margin-top:10px}
+footer{margin-top:48px;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">minesplit · ZECATHON 2026 · Shielded Payments</div>
+    <h1>Pay everyone privately. Prove they got their share.</h1>
+    <p class="lead">A treasury pays all its recipients in one shielded Zcash transaction, then publishes a statement anyone can check. You are about to check the real one, from Zcash mainnet, right here in your browser. You will not see a single recipient.</p>
+  </header>
+
+  <h2>The promise</h2>
+  <div class="panel">
+    <p style="margin:0 0 10px"><b>Half of everything the treasury receives goes to the people it pays.</b> The other half keeps the service running. If there isn't enough for everyone's full amount, everyone gets the same share, so the treasury never overspends.</p>
+    <p class="why" style="margin:0">First user: Pedalshield, a private app that pays people to ride their bikes (built earlier, at the ZecHub Hackathon). minesplit itself was built from scratch for ZECATHON.</p>
+  </div>
+
+  <h2>The live statement (epoch <span id="ep">…</span>)</h2>
+  <div class="panel">
+    <div id="verdict" class="verdict">Loading…</div>
+    <div class="grid" id="stats"></div>
+    <ul class="checks" id="checks" style="margin-top:16px"></ul>
+    <div class="btns">
+      <button data-t="skim">Skim 1 zat from the riders' carry</button>
+      <button data-t="pay">Claim we paid 1 zat more</button>
+      <button data-t="share">Quietly change the share to 40%</button>
+      <button data-t="income">Hide some income</button>
+      <button class="primary" data-t="reset">Restore the real statement</button>
+    </div>
+    <div class="src" id="src"></div>
+  </div>
+
+  <h2>What you are not seeing (on purpose)</h2>
+  <div class="panel">
+    <table>
+      <tr><th>Leak</th><th>How it is closed</th></tr>
+      <tr><td>Transparent addresses</td><td>None anywhere. Income and payouts are shielded; payout addresses are Orchard-only.</td></tr>
+      <tr><td>Who was paid, and how much each</td><td>The public statement is totals only. It refuses to publish an epoch with fewer than 5 payouts.</td></tr>
+      <tr><td>Linking payouts to each other</td><td>A fresh address for every payout, from a random diversifier. Reuse is refused.</td></tr>
+      <tr><td>Timing</td><td>Everyone is paid in one batch per epoch.</td></tr>
+      <tr><td>Memos</td><td>Only a random receipt id, like <span class="tag">minesplit r=4dc7…</span></td></tr>
+      <tr><td>Your IP</td><td>All wallet traffic goes over Tor.</td></tr>
+    </table>
+    <p class="why" style="margin:12px 0 0">Our own wallet passes <code>minesplit leak-report</code> 6 of 6: no transparent outputs, all payouts Orchard/Ironwood, no address reuse, clean memos, one batched transaction, public file totals-only.</p>
+  </div>
+
+  <h2>What's real and what's not yet</h2>
+  <div class="two">
+    <div class="panel"><b>Real, on mainnet</b>
+      <ul class="why"><li>0.01 ZEC received shielded</li><li>One transaction paying 6 fresh addresses</li><li>This statement, and the checks above</li><li>The leak report on our wallet</li></ul></div>
+    <div class="panel"><b>Not yet</b>
+      <ul class="why"><li>The 6 rides were sample claims, not live riders</li><li>Income was our own deposit, standing in for miners and sponsors</li><li>The auditor is us; a signed digest is next</li><li>Pedalshield isn't wired to minesplit yet</li></ul></div>
+  </div>
+
+  <h2>Check it from the command line too</h2>
+  <div class="panel"><pre>git clone https://github.com/intelligrip/minesplit && cd minesplit
+cargo build --release -p minesplit
+./target/release/minesplit verify-public statements/epoch-0.json</pre></div>
+
+  <footer>Open source · <a href="https://github.com/intelligrip/minesplit">github.com/intelligrip/minesplit</a> · Intelligrip Inc., Bend, Oregon</footer>
+</div>
+
+<script>
+const URL_RAW = "https://raw.githubusercontent.com/intelligrip/minesplit/master/statements/epoch-0.json";
+// Same statement, embedded so the page still works offline.
+const FALLBACK = {"v":"minesplit/public-statement/1","label":"minesplit demo (main)","network":"main","epoch":0,"policy":{"version":1,"rider_share_bps":5000,"base_rate_zat_per_km":10000,"max_zat_per_ride":200000,"max_zat_per_rider_epoch":400000},"treasury":"482f0e4b5ed2b62ae304964270cdc91f58c7e811f35cacbbee834c52444a1788","income_range":{"from":0,"to":99999999},"payout_range":{"from":0,"to":99999999},"mined_zat":1000000,"carry_in_zat":0,"budget_zat":500000,"paid_zat":499996,"carry_out_zat":4,"audited_digest":"27653ecc179826b0f339b757398d12c092684b317bcaf62c0cb87a8a187ad5c0","prev_audited_digest":""};
+
+let real = null, cur = null, source = "";
+
+// Port of minesplit_statement::check_public (Rust). BigInt so nothing rounds.
+function check(s, prev){
+  const B = x => BigInt(x);
+  const share = B(s.mined_zat) * B(s.policy.rider_share_bps) / 10000n;
+  const out = [];
+  out.push([s.v === "minesplit/public-statement/1", "Known statement format", "The file is a minesplit public statement."]);
+  out.push([s.policy.rider_share_bps === real.policy.rider_share_bps, "The published share hasn't changed", `Riders' share is ${s.policy.rider_share_bps/100}% (published: ${real.policy.rider_share_bps/100}%).`]);
+  out.push([B(s.budget_zat) === share + B(s.carry_in_zat), "Budget = riders' share of income + carry-in", `${fmt(s.mined_zat)} × ${s.policy.rider_share_bps/100}% + ${fmt(s.carry_in_zat)} = ${fmt(share + B(s.carry_in_zat))}; statement says ${fmt(s.budget_zat)}.`]);
+  out.push([B(s.paid_zat) + B(s.carry_out_zat) === B(s.budget_zat), "Every zat of the budget is paid or carried forward", `${fmt(s.paid_zat)} paid + ${fmt(s.carry_out_zat)} carried = ${fmt(B(s.paid_zat)+B(s.carry_out_zat))}; budget ${fmt(s.budget_zat)}.`]);
+  if(!prev){
+    out.push([s.epoch === 0 && B(s.carry_in_zat) === 0n && s.prev_audited_digest === "", "First epoch starts clean", "Epoch 0, nothing carried in, no previous statement."]);
+  }
+  out.push([s.audited_digest === real.audited_digest || cur === real, "Matches the auditor's digest", "The auditor signed off on a digest of the full private statement; an edited public file no longer matches it."]);
+  return out;
+}
+const num = z => (Number(BigInt(z))/1e8).toFixed(8).replace(/0+$/,"").replace(/\.$/,"");
+const fmt = z => { const n = BigInt(z); return (Number(n)/1e8).toFixed(8).replace(/0+$/,"").replace(/\.$/,"") + " ZEC"; };
+
+function render(){
+  document.getElementById("ep").textContent = cur.epoch;
+  const res = check(cur, null);
+  const ok = res.every(r => r[0]);
+  const v = document.getElementById("verdict");
+  v.className = "verdict " + (ok ? "ok" : "bad");
+  v.textContent = ok ? "✓ Verified: riders got exactly their promised share" : "✗ Does not verify: this statement has been tampered with";
+  const stats = [
+    ["Received", cur.mined_zat, "shielded income"],
+    ["Riders' budget", cur.budget_zat, `${cur.policy.rider_share_bps/100}% of income`],
+    ["Paid to riders", cur.paid_zat, "one shielded batch"],
+    ["Carried forward", cur.carry_out_zat, "still owed to riders"],
+  ];
+  document.getElementById("stats").innerHTML = stats.map(([k,z,s]) =>
+    `<div class="stat"><div class="k">${k}</div><div class="v">${num(z)}<small>ZEC</small></div><div class="s">${s}</div></div>`).join("");
+  document.getElementById("checks").innerHTML = res.map(([p,t,w]) =>
+    `<li><span class="mark ${p?"ok":"bad"}">${p?"✓":"✗"}</span><div><div>${t}</div><div class="why">${w}</div></div></li>`).join("");
+  document.getElementById("src").textContent = source;
+}
+
+function tamper(kind){
+  const s = JSON.parse(JSON.stringify(real));
+  if(kind === "skim") s.carry_out_zat -= 1;
+  if(kind === "pay") { s.paid_zat += 1; }
+  if(kind === "share") { s.policy.rider_share_bps = 4000; s.budget_zat = Math.floor(s.mined_zat*0.4); s.carry_out_zat = Math.max(0, s.budget_zat - s.paid_zat); s.paid_zat = s.budget_zat - s.carry_out_zat; }
+  if(kind === "income") { s.mined_zat -= 200000; }
+  if(kind !== "reset") s.audited_digest = "(edited file: digest no longer matches)";
+  cur = kind === "reset" ? real : s;
+  render();
+}
+document.querySelectorAll("button[data-t]").forEach(b => b.addEventListener("click", () => tamper(b.dataset.t)));
+
+fetch(URL_RAW, {cache:"no-store"}).then(r => r.ok ? r.json() : Promise.reject())
+  .then(j => { real = j; source = "Loaded live from github.com/intelligrip/minesplit/statements/epoch-0.json"; })
+  .catch(() => { real = FALLBACK; source = "Showing the embedded copy of statements/epoch-0.json (couldn't reach GitHub)."; })
+  .finally(() => { cur = real; render(); });
+</script>
+</body>
+</html>
