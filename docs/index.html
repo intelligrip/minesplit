@@ -69,8 +69,21 @@ footer{margin-top:48px;color:var(--muted);font-size:14px}
 
   <h2>The promise</h2>
   <div class="panel">
-    <p style="margin:0 0 10px"><b>Half of everything the treasury receives goes to the people it pays.</b> The other half keeps the service running. If there isn't enough for everyone's full amount, everyone gets the same share, so the treasury never overspends.</p>
+    <p style="margin:0 0 10px"><b>Example rule: half of everything the treasury receives goes to the people it pays.</b> The other half keeps the service running. If there isn't enough for everyone's full amount, everyone gets the same share, so the treasury never overspends.</p>
     <p class="why" style="margin:0">First user: Pedalshield, a private app that pays people to ride their bikes (built earlier, at the ZecHub Hackathon). minesplit itself was built from scratch for ZECATHON.</p>
+  </div>
+
+  <h2>Who it's for</h2>
+  <div class="panel">
+    <p style="margin:0 0 10px">Anyone who pays many people and has to prove they paid fairly, without exposing who got what.</p>
+    <table>
+      <tr><td><b>Grant programs &amp; bounty boards</b></td><td>Pay contributors without publishing each person's earnings.</td></tr>
+      <tr><td><b>Mining pools</b></td><td>Pay miners privately and prove the pool took only its cut.</td></tr>
+      <tr><td><b>DAOs &amp; co-ops</b></td><td>Share revenue with members by a public rule, with private payouts.</td></tr>
+      <tr><td><b>Payroll</b></td><td>Pay a team without exposing salaries, and prove payroll was met.</td></tr>
+      <tr><td><b>Charities &amp; aid</b></td><td>Reach people who could be at risk if identified, and prove donors' money arrived.</td></tr>
+      <tr><td><b>Reward apps</b></td><td>Like Pedalshield: pay users for activity without building a record of them.</td></tr>
+    </table>
   </div>
 
   <h2>The live statement (epoch <span id="ep">…</span>)</h2>
@@ -137,7 +150,6 @@ function check(s, prev){
   if(!prev){
     out.push([s.epoch === 0 && B(s.carry_in_zat) === 0n && s.prev_audited_digest === "", "First epoch starts clean", "Epoch 0, nothing carried in, no previous statement."]);
   }
-  out.push([s.audited_digest === real.audited_digest || cur === real, "Matches the auditor's digest", "The auditor signed off on a digest of the full private statement; an edited public file no longer matches it."]);
   return out;
 }
 const num = z => (Number(BigInt(z))/1e8).toFixed(8).replace(/0+$/,"").replace(/\.$/,"");
@@ -169,7 +181,6 @@ function tamper(kind){
   if(kind === "pay") { s.paid_zat += 1; }
   if(kind === "share") { s.policy.rider_share_bps = 4000; s.budget_zat = Math.floor(s.mined_zat*0.4); s.carry_out_zat = Math.max(0, s.budget_zat - s.paid_zat); s.paid_zat = s.budget_zat - s.carry_out_zat; }
   if(kind === "income") { s.mined_zat -= 200000; }
-  if(kind !== "reset") s.audited_digest = "(edited file: digest no longer matches)";
   cur = kind === "reset" ? real : s;
   render();
 }
