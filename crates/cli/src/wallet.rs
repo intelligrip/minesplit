@@ -12,7 +12,7 @@ use rusqlite::{Connection, OpenFlags};
 pub struct Output {
     pub txid: String,
     pub height: Option<u32>,
-    /// 0 transparent, 2 Sapling, 3 Orchard (zcash_client_sqlite pool codes).
+    /// 0 transparent, 2 Sapling, 3 Orchard, 4 Ironwood (zcash_client_sqlite pool codes).
     pub pool: i64,
     pub from_us: bool,
     pub to_us: bool,
@@ -23,6 +23,11 @@ pub struct Output {
 }
 
 pub const POOL_TRANSPARENT: i64 = 0;
+
+/// Orchard-protocol notes: the legacy Orchard pool or, since NU6.3, Ironwood.
+pub fn is_orchard_protocol(pool: i64) -> bool {
+    pool == 3 || pool == 4
+}
 
 pub fn open(db: &str) -> Result<Connection> {
     Connection::open_with_flags(db, OpenFlags::SQLITE_OPEN_READ_ONLY)

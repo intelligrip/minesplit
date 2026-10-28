@@ -166,8 +166,8 @@ fn main() -> Result<()> {
             let transparent = outs.iter().filter(|o| o.pool == wallet::POOL_TRANSPARENT).count();
             rows.push((transparent == 0, "transparent pool".into(), format!("{transparent} transparent outputs")));
             let pays: Vec<_> = outs.iter().filter(|o| o.is_payout()).collect();
-            let non_orchard = pays.iter().filter(|o| o.pool != 3).count();
-            rows.push((non_orchard == 0, "payouts are Orchard".into(), format!("{non_orchard} of {} not Orchard", pays.len())));
+            let non_orchard = pays.iter().filter(|o| !wallet::is_orchard_protocol(o.pool)).count();
+            rows.push((non_orchard == 0, "payouts Orchard/Ironwood".into(), format!("{non_orchard} of {} in another pool", pays.len())));
             let mut seen = HashSet::new();
             let reused = pays.iter().filter_map(|o| o.to_address.as_ref()).filter(|a| !seen.insert(a.as_str())).count();
             rows.push((reused == 0, "address reuse".into(), format!("{reused} reused payout addresses")));
